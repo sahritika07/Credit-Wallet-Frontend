@@ -1,16 +1,30 @@
-# React + Vite
+# Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Vite + React frontend for the Credit Wallet project.
 
-Currently, two official plugins are available:
+## Local run
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Install deps
 
-## React Compiler
+```bash
+cd Frontend
+npm install
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+2. Start dev server
 
-## Expanding the ESLint configuration
+```bash
+npm run dev
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+3. Configure API
+
+Set `VITE_API_BASE` in `Frontend/.env` (defaults to `http://localhost:5000/api`).
+
+## Notes
+
+- Tailwind CSS is configured (`tailwind.config.cjs`, `postcss.config.cjs`).
+- Pages added: `Login`, `Signup`, `Wallet`, `Campaigns`, `Profile`, and `CheckoutReturn`.
+- API helpers live in `src/services/api.js`.
+
+If you want me to commit these frontend changes and run the dev server, tell me and I'll proceed.

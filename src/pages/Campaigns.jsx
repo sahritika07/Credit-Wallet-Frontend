@@ -46,21 +46,21 @@ export default function Campaigns() {
   if (loading) return <div className="p-6">Loading campaigns...</div>;
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl mb-4">Campaigns</h2>
-      <form onSubmit={handleCreate} className="mb-6">
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" className="border p-2 mr-2" />
-        <input value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="Goal" type="number" className="border p-2 mr-2" />
-        <button className="bg-green-600 text-white px-3 py-1 rounded">Create</button>
+    <div className="max-w-5xl mx-auto p-6">
+      <h2 className="text-2xl font-semibold mb-4">Campaigns</h2>
+      <form onSubmit={handleCreate} className="mb-6 flex gap-2">
+        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" className="border p-2 flex-1 rounded" />
+        <input value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="Goal" type="number" className="border p-2 w-36 rounded" />
+        <button className="bg-green-600 text-white px-4 py-2 rounded">Create</button>
       </form>
 
       <div className="grid gap-4">
         {campaigns.length === 0 && <div>No campaigns</div>}
         {campaigns.map((c) => (
-          <div key={c.id} className="p-4 border rounded flex justify-between items-center">
+          <div key={c.id} className="p-4 border rounded flex justify-between items-center bg-white shadow-sm">
             <div>
-              <div className="font-medium">{c.title}</div>
-              <div className="text-sm">Raised: {c.fundedAmount || c.funded || 0}</div>
+              <div className="font-medium text-lg">{c.title}</div>
+              <div className="text-sm text-gray-600">Raised: {c.fundedAmount || c.funded || 0}</div>
             </div>
             <div>
               <button className="bg-indigo-600 text-white px-3 py-1 rounded" onClick={() => handleFund(c.id)}>Fund</button>

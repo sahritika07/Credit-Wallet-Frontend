@@ -6,6 +6,7 @@ import Wallet from './pages/Wallet'
 import Campaigns from './pages/Campaigns'
 import Profile from './pages/Profile'
 import CheckoutReturn from './pages/CheckoutReturn'
+import Home from './pages/Home'
 import Navbar from './components/Navbar'
 import './App.css'
 
@@ -22,7 +23,7 @@ function App() {
           <Route path="/campaigns" element={<Campaigns />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/checkout-return" element={<CheckoutReturn />} />
-          <Route path="/" element={<div className="text-center">Welcome to Credit Wallet</div>} />
+          <Route path="/" element={<Home />} />
         </Routes>
         </div>
       </div>

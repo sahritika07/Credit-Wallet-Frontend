@@ -31,6 +31,7 @@ export default function Signup() {
           <input type="password" className="border p-2 w-full mt-1 rounded" value={password} onChange={(e) => setPassword(e.target.value)} />
         </label>
         <button className="w-full bg-indigo-600 text-white p-2 rounded">Sign up</button>
+        <div className="mt-4 text-center text-sm text-gray-600">Already have an account? <a href="/login" className="text-indigo-600">Sign in</a></div>
       </form>
     </div>
   );

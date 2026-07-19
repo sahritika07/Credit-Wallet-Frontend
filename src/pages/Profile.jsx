@@ -23,10 +23,12 @@ export default function Profile() {
   if (!profile) return <div className="p-6">No profile</div>;
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl mb-4">Profile</h2>
-      <div className="mb-2">Email: {profile.email}</div>
-      <div>User ID: {profile.id}</div>
+    <div className="max-w-5xl mx-auto p-6">
+      <h2 className="text-2xl mb-4">Profile</h2>
+      <div className="p-4 border rounded bg-white shadow-sm">
+        <div className="mb-2">Email: <span className="font-medium">{profile.email}</span></div>
+        <div>User ID: <span className="font-mono text-sm">{profile.id}</span></div>
+      </div>
     </div>
   );
 }

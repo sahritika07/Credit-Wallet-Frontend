@@ -31,6 +31,7 @@ export default function Login() {
           <input type="password" className="border p-2 w-full mt-1 rounded" value={password} onChange={(e) => setPassword(e.target.value)} />
         </label>
         <button className="w-full bg-indigo-600 text-white p-2 rounded">Sign in</button>
+        <div className="mt-4 text-center text-sm text-gray-600">Don't have an account? <a href="/signup" className="text-indigo-600">Sign up</a></div>
       </form>
     </div>
   );

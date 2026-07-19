@@ -4,18 +4,23 @@ import { logout } from '../services/api'
 
 export default function Navbar() {
   return (
-    <div className="flex items-center justify-between p-4 bg-white shadow-sm">
-      <div className="flex items-center gap-4">
-        <Link to="/" className="text-2xl font-semibold text-indigo-600">CreditWallet</Link>
-        <Link to="/wallet" className="text-sm text-gray-600">Wallet</Link>
-        <Link to="/campaigns" className="text-sm text-gray-600">Campaigns</Link>
+    <header className="bg-gradient-to-r from-indigo-50 to-white shadow">
+      <div className="max-w-5xl mx-auto flex items-center justify-between p-4">
+        <div className="flex items-center gap-6">
+          <Link to="/" className="text-2xl font-bold text-indigo-600">CreditWallet</Link>
+          <nav className="hidden md:flex gap-4 items-center">
+            <Link to="/wallet" className="text-sm text-gray-700 hover:text-indigo-600">Wallet</Link>
+            <Link to="/campaigns" className="text-sm text-gray-700 hover:text-indigo-600">Campaigns</Link>
+          </nav>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Link to="/profile" className="text-sm text-gray-700 hover:text-indigo-600">Profile</Link>
+          <Link to="/login" className="text-sm text-gray-700 hover:text-indigo-600">Login</Link>
+          <Link to="/signup" className="ml-2 inline-block bg-indigo-600 text-white px-3 py-1 rounded shadow-sm">Sign up</Link>
+          <button onClick={() => { logout(); window.location.href = '/'; }} className="ml-3 text-sm text-red-600">Logout</button>
+        </div>
       </div>
-      <div className="flex items-center gap-3">
-        <Link to="/profile" className="text-sm text-gray-600">Profile</Link>
-        <Link to="/login" className="text-sm text-gray-600">Login</Link>
-        <Link to="/signup" className="text-sm text-gray-600">Signup</Link>
-        <button onClick={() => { logout(); window.location.href = '/'; }} className="text-sm text-red-600">Logout</button>
-      </div>
-    </div>
+    </header>
   )
 }
