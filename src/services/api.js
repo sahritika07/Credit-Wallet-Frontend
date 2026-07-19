@@ -18,3 +18,4 @@ export const getLedger = (currencyId) => request(`/wallet/ledger${currencyId ? `
 export const createCheckout = (payload) => request('/stripe/checkout', { method: 'POST', body: JSON.stringify(payload) });
 export const createCampaign = (payload) => request('/campaigns', { method: 'POST', body: JSON.stringify(payload) });
 export const fundCampaign = (id, payload) => request(`/campaigns/${id}/fund`, { method: 'POST', body: JSON.stringify(payload) });
+export const getCampaigns = () => request('/campaigns');
