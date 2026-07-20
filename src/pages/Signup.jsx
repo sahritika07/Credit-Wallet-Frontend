@@ -1,43 +1,96 @@
 import React, { useState } from 'react';
 import { signup } from '../services/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import Modal from '../components/Modal';
 
 export default function Signup() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
-  const handle = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!fullName.trim()) return setError('Full name is required');
+    setError('');
+
+    if (!fullName.trim() || !email.trim() || !password.trim()) {
+      setError('Please fill out all fields.');
+      setShowModal(true);
+      return;
+    }
+
     try {
       const res = await signup({ full_name: fullName, email, password });
-      if (res && res.token) localStorage.setItem('token', res.token);
-      navigate('/');
+      if (res && res.token) {
+        localStorage.setItem('token', res.token);
+        navigate('/wallet');
+      }
     } catch (err) {
       setError(err.message || 'Signup failed');
+      setShowModal(true);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <form onSubmit={handle} className="bg-white p-8 rounded shadow w-full max-w-md">
-        <h2 className="text-2xl mb-4">Create account</h2>
-        {error && <div className="text-red-600 mb-2">{error}</div>}
-        <label className="block mb-2">Full name
-          <input className="border p-2 w-full mt-1 rounded" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-        </label>
-        <label className="block mb-2">Email
-          <input className="border p-2 w-full mt-1 rounded" value={email} onChange={(e) => setEmail(e.target.value)} />
-        </label>
-        <label className="block mb-4">Password
-          <input type="password" className="border p-2 w-full mt-1 rounded" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </label>
-        <button className="w-full bg-indigo-600 text-white p-2 rounded">Sign up</button>
-        <div className="mt-4 text-center text-sm text-gray-600">Already have an account? <a href="/login" className="text-indigo-600">Sign in</a></div>
-      </form>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-xl ring-1 ring-slate-200">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-semibold text-slate-900">Create your account</h1>
+          <p className="mt-2 text-sm text-slate-500">Start using your multi-currency wallet with secure onboarding.</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-slate-700">Full name</label>
+            <input
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:bg-white"
+              placeholder="Jane Doe"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:bg-white"
+              placeholder="name@example.com"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:bg-white"
+              placeholder="Create a strong password"
+            />
+          </div>
+
+          <button className="w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700">
+            Sign up
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-slate-500">
+          Already have an account?{' '}
+          <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-700">
+            Sign in
+          </Link>
+        </p>
+      </div>
+
+      {showModal && error && (
+        <Modal title="Signup error" message={error} onClose={() => setShowModal(false)} />
+      )}
     </div>
   );
 }
