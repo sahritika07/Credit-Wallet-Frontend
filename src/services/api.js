@@ -6,7 +6,18 @@ async function request(path, options = {}) {
   if (token) headers['Authorization'] = `Bearer ${token}`;
   const res = await fetch(`${API_BASE}${path}`, { credentials: 'include', headers: { 'Content-Type': 'application/json', ...headers }, ...options });
   const body = await res.json().catch(() => null);
-  if (!res.ok) throw body || { message: 'Network error' };
+  if (!res.ok) {
+    const msg = (body && body.error && body.error.message) || (body && body.message) || 'Network error';
+    const error = new Error(msg);
+    error.details = (body && body.error && body.error.details) || null;
+    throw error;
+  }
+
+  // Unwrap standard backend envelope { success: true, data: ... }
+  if (body && typeof body === 'object') {
+    if (body.success && Object.prototype.hasOwnProperty.call(body, 'data')) return body.data;
+  }
+
   return body;
 }
 

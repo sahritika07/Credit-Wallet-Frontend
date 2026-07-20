@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { getCampaigns, createCampaign, fundCampaign } from '../services/api';
+import { getCampaigns, createCampaign, fundCampaign, getWallets } from '../services/api';
 
 export default function Campaigns() {
   const [campaigns, setCampaigns] = useState([]);
   const [title, setTitle] = useState('');
   const [goal, setGoal] = useState(0);
+  const [wallets, setWallets] = useState([]);
+  const [campaignCurrencyId, setCampaignCurrencyId] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
         const res = await getCampaigns();
-        setCampaigns(res.campaigns || res);
+        const data = Array.isArray(res) ? res : (res && res.data) ? res.data : [];
+        setCampaigns(data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -21,11 +24,29 @@ export default function Campaigns() {
     load();
   }, []);
 
+  // load wallets to determine available currencies (pick campaign currency)
+  useEffect(() => {
+    async function loadWallets() {
+      try {
+        const w = await getWallets();
+        const allWallets = Array.isArray(w) ? w : (w && w.data) ? w.data : [];
+        setWallets(allWallets);
+        const campaignWallet = allWallets.find((x) => x.currency && x.currency.module === 'campaign');
+        if (campaignWallet) setCampaignCurrencyId(campaignWallet.currency.id || campaignWallet.currency_id);
+      } catch (err) {
+        // ignore
+      }
+    }
+    loadWallets();
+  }, []);
+
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
-      const res = await createCampaign({ title, goal });
-      setCampaigns((p) => [res.campaign || res, ...p]);
+      if (!campaignCurrencyId) return alert('No campaign currency available in your wallets');
+      const payload = { title, targetAmount: Number(goal), currencyId: campaignCurrencyId };
+      const res = await createCampaign(payload);
+      setCampaigns((p) => [res || res.campaign || res, ...p]);
       setTitle(''); setGoal(0);
     } catch (err) {
       alert(err.message || 'Create failed');
@@ -36,7 +57,8 @@ export default function Campaigns() {
     const amount = parseInt(prompt('Amount to fund (in credits)'), 10);
     if (!amount) return;
     try {
-      await fundCampaign(id, { amount });
+      if (!campaignCurrencyId) return alert('No campaign currency available');
+      await fundCampaign(id, { currencyId: campaignCurrencyId, amount });
       alert('Fund request sent; credits will be applied after successful checkout/webhook');
     } catch (err) {
       alert(err.message || 'Fund failed');

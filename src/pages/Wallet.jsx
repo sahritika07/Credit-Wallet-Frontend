@@ -10,7 +10,8 @@ export default function Wallet() {
     async function load() {
       try {
         const res = await getWallets();
-        setWallets(res.wallets || res);
+        // API now returns the wallets array directly (or { success/data } is unwrapped)
+        setWallets(Array.isArray(res) ? res : (res && res.data) ? res.data : []);
       } catch (err) {
         setError(err.message || 'Failed to load wallets');
       } finally {
@@ -22,8 +23,8 @@ export default function Wallet() {
 
   const handleBuy = async (currencyId) => {
     try {
-      const res = await createCheckout({ currencyId, amount: 100 });
-      const url = res.url || res.checkoutUrl || res.sessionUrl;
+      const res = await createCheckout({ currencyId, quantity: 1 });
+      const url = res.checkoutUrl || res.url || res.sessionUrl;
       if (url) window.location.href = url;
       else alert('Checkout URL not returned by server');
     } catch (err) {
@@ -41,9 +42,9 @@ export default function Wallet() {
         {wallets.length === 0 && <div className="p-4">No wallets found</div>}
         {wallets.map((w) => (
           <div key={w.id} className="p-4 border rounded shadow-sm bg-white">
-            <div className="font-medium text-lg">{w.currency?.code || w.currencyCode || w.currency}</div>
-            <div className="text-sm text-gray-600">Balance: {w.balance}</div>
-            <button className="mt-3 bg-indigo-600 text-white px-3 py-1 rounded" onClick={() => handleBuy(w.currencyId || w.currency?.id)}>
+            <div className="font-medium text-lg">{w.currency?.code || w.currencyCode || (w.currency && w.currency.code)}</div>
+            <div className="text-sm text-gray-600">Balance: {w.current_balance ?? w.balance ?? 0}</div>
+            <button className="mt-3 bg-indigo-600 text-white px-3 py-1 rounded" onClick={() => handleBuy(w.currency_id || w.currency?.id || w.currencyId)}>
               Buy credits
             </button>
           </div>
