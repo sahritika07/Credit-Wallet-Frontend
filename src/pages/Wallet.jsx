@@ -11,7 +11,9 @@ const formatInr = (paise) =>
 export default function Wallet() {
   const [wallets, setWallets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -19,7 +21,10 @@ export default function Wallet() {
         const res = await getWallets();
         setWallets(Array.isArray(res) ? res : []);
       } catch (err) {
-        setError(err.message || 'Failed to load wallets');
+        const message = err.message || 'Failed to load wallets';
+        setError(message);
+        setModalMessage(message);
+        setShowModal(true);
       } finally {
         setLoading(false);
       }
@@ -38,7 +43,9 @@ export default function Wallet() {
       }
       alert('Checkout URL not returned by server');
     } catch (err) {
-      alert(err.message || 'Checkout error');
+      const message = err.message || 'Checkout error';
+      setModalMessage(message);
+      setShowModal(true);
     }
   };
 

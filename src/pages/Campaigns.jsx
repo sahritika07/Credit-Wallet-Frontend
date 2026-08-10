@@ -8,6 +8,8 @@ export default function Campaigns() {
   const [goal, setGoal] = useState('');
   const [selectedCurrencyId, setSelectedCurrencyId] = useState('');
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -32,6 +34,22 @@ export default function Campaigns() {
     load();
   }, []);
 
+  // load wallets to determine available currencies (pick campaign currency)
+  useEffect(() => {
+    async function loadWallets() {
+      try {
+        const w = await getWallets();
+        const allWallets = Array.isArray(w) ? w : (w && w.data) ? w.data : [];
+        setWallets(allWallets);
+        const campaignWallet = allWallets.find((x) => x.currency && x.currency.module === 'campaign');
+        if (campaignWallet) setCampaignCurrencyId(campaignWallet.currency.id || campaignWallet.currency_id);
+      } catch (err) {
+        // ignore
+      }
+    }
+    loadWallets();
+  }, []);
+
   const handleCreate = async (event) => {
     event.preventDefault();
 
@@ -46,7 +64,8 @@ export default function Campaigns() {
       setTitle('');
       setGoal('');
     } catch (err) {
-      alert(err.message || 'Create failed');
+      setErrorMessage(err.message || 'Create failed');
+      setShowModal(true);
     }
   };
 
@@ -63,7 +82,8 @@ export default function Campaigns() {
       );
       alert('Campaign funded successfully.');
     } catch (err) {
-      alert(err.message || 'Fund failed');
+      setErrorMessage(err.message || 'Fund failed');
+      setShowModal(true);
     }
   };
 
