@@ -1,73 +1,139 @@
-import React, { useEffect, useState } from 'react';
-import { getCampaigns, createCampaign, fundCampaign } from '../services/api';
+import { useEffect, useState } from 'react';
+import { createCampaign, fundCampaign, getCampaigns, getWallets } from '../services/api';
 
 export default function Campaigns() {
   const [campaigns, setCampaigns] = useState([]);
+  const [wallets, setWallets] = useState([]);
   const [title, setTitle] = useState('');
-  const [goal, setGoal] = useState(0);
+  const [goal, setGoal] = useState('');
+  const [selectedCurrencyId, setSelectedCurrencyId] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const res = await getCampaigns();
-        setCampaigns(res.campaigns || res);
+        const [campaignData, walletData] = await Promise.all([getCampaigns(), getWallets()]);
+        const availableWallets = Array.isArray(walletData) ? walletData : [];
+        const campaignWallets = availableWallets.filter((wallet) => wallet.currency?.module === 'campaign');
+
+        setCampaigns(Array.isArray(campaignData) ? campaignData : []);
+        setWallets(campaignWallets);
+
+        if (campaignWallets[0]?.currency?.id) {
+          setSelectedCurrencyId(String(campaignWallets[0].currency.id));
+        }
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
       }
     }
+
     load();
   }, []);
 
-  const handleCreate = async (e) => {
-    e.preventDefault();
+  const handleCreate = async (event) => {
+    event.preventDefault();
+
     try {
-      const res = await createCampaign({ title, goal });
-      setCampaigns((p) => [res.campaign || res, ...p]);
-      setTitle(''); setGoal(0);
+      const res = await createCampaign({
+        title,
+        description: '',
+        targetAmount: Number(goal),
+        currencyId: Number(selectedCurrencyId),
+      });
+      setCampaigns((previous) => [res, ...previous]);
+      setTitle('');
+      setGoal('');
     } catch (err) {
       alert(err.message || 'Create failed');
     }
   };
 
-  const handleFund = async (id) => {
+  const handleFund = async (campaign) => {
     const amount = parseInt(prompt('Amount to fund (in credits)'), 10);
     if (!amount) return;
+
+    const currencyId = campaign.currency_id || campaign.currency?.id || Number(selectedCurrencyId);
+
     try {
-      await fundCampaign(id, { amount });
-      alert('Fund request sent; credits will be applied after successful checkout/webhook');
+      const updatedCampaign = await fundCampaign(campaign.id, { currencyId, amount });
+      setCampaigns((previous) =>
+        previous.map((item) => (item.id === updatedCampaign.id ? updatedCampaign : item)),
+      );
+      alert('Campaign funded successfully.');
     } catch (err) {
       alert(err.message || 'Fund failed');
     }
   };
 
-  if (loading) return <div className="p-6">Loading campaigns...</div>;
+  if (loading) return <div className="page-state">Loading campaigns...</div>;
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h2 className="text-2xl font-semibold mb-4">Campaigns</h2>
-      <form onSubmit={handleCreate} className="mb-6 flex gap-2">
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" className="border p-2 flex-1 rounded" />
-        <input value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="Goal" type="number" className="border p-2 w-36 rounded" />
-        <button className="bg-green-600 text-white px-4 py-2 rounded">Create</button>
-      </form>
+    <div className="page-stack">
+      <section className="page-header">
+        <div>
+          <p className="eyebrow">Campaign workspace</p>
+          <h1 className="section-title">Create and fund campaigns with campaign credits</h1>
+        </div>
+        <p className="section-copy">Funding consumes credits from your campaign wallet and records the spend in the ledger immediately.</p>
+      </section>
 
-      <div className="grid gap-4">
-        {campaigns.length === 0 && <div>No campaigns</div>}
-        {campaigns.map((c) => (
-          <div key={c.id} className="p-4 border rounded flex justify-between items-center bg-white shadow-sm">
-            <div>
-              <div className="font-medium text-lg">{c.title}</div>
-              <div className="text-sm text-gray-600">Raised: {c.fundedAmount || c.funded || 0}</div>
-            </div>
-            <div>
-              <button className="bg-indigo-600 text-white px-3 py-1 rounded" onClick={() => handleFund(c.id)}>Fund</button>
-            </div>
+      <section className="panel-card">
+        <div className="panel-header">
+          <div>
+            <p className="eyebrow">New campaign</p>
+            <h2 className="section-title">Start a campaign</h2>
           </div>
+        </div>
+
+        <form onSubmit={handleCreate} className="form-grid">
+          <label className="field-group">
+            <span>Campaign title</span>
+            <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Launch a new funding goal" className="field-input" />
+          </label>
+
+          <label className="field-group">
+            <span>Target credits</span>
+            <input value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="25" type="number" className="field-input" />
+          </label>
+
+          <label className="field-group">
+            <span>Funding currency</span>
+            <select value={selectedCurrencyId} onChange={(e) => setSelectedCurrencyId(e.target.value)} className="field-input">
+              {wallets.map((wallet) => (
+                <option key={wallet.id} value={wallet.currency?.id}>
+                  {wallet.currency?.name} ({wallet.currency?.code})
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div className="form-actions">
+            <button className="button-link" disabled={!selectedCurrencyId}>
+              Create campaign
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section className="feature-grid">
+        {campaigns.length === 0 && <div className="panel-card">No campaigns yet.</div>}
+        {campaigns.map((campaign) => (
+          <article key={campaign.id} className="panel-card">
+            <div className="wallet-topline">
+              <p className="eyebrow">{campaign.status}</p>
+              <span className="wallet-chip">{campaign.currency?.code || 'CAMPAIGN'}</span>
+            </div>
+            <h2 className="section-title">{campaign.title}</h2>
+            <p className="section-copy">Target: {campaign.target_amount} credits</p>
+            <p className="wallet-balance">{campaign.current_amount} / {campaign.target_amount}</p>
+            <button className="button-link mt-4" onClick={() => handleFund(campaign)}>
+              Fund campaign
+            </button>
+          </article>
         ))}
-      </div>
+      </section>
     </div>
   );
 }

@@ -1,42 +1,79 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { signup } from '../services/api';
-import { useNavigate } from 'react-router-dom';
 
 export default function Signup() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  const handle = async (e) => {
-    e.preventDefault();
-    if (!fullName.trim()) return setError('Full name is required');
+  const handle = async (event) => {
+    event.preventDefault();
+
+    if (!fullName.trim()) {
+      setError('Full name is required');
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
+
     try {
       const res = await signup({ full_name: fullName, email, password });
-      if (res && res.token) localStorage.setItem('token', res.token);
-      navigate('/');
+      if (res?.token) {
+        localStorage.setItem('token', res.token);
+      }
+      navigate('/wallet');
     } catch (err) {
       setError(err.message || 'Signup failed');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <form onSubmit={handle} className="bg-white p-8 rounded shadow w-full max-w-md">
-        <h2 className="text-2xl mb-4">Create account</h2>
-        {error && <div className="text-red-600 mb-2">{error}</div>}
-        <label className="block mb-2">Full name
-          <input className="border p-2 w-full mt-1 rounded" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+    <div className="auth-layout">
+      <section className="auth-aside">
+        <p className="eyebrow">Create your workspace</p>
+        <h1 className="hero-title">Set up your account and start managing credits with a clear wallet trail.</h1>
+        <p className="hero-summary">
+          Signing up creates your user account and pre-builds wallets for every active currency in the system.
+        </p>
+      </section>
+
+      <form onSubmit={handle} className="auth-card">
+        <div>
+          <p className="eyebrow">Signup</p>
+          <h2 className="section-title">Create your account</h2>
+        </div>
+
+        {error && <div className="error-banner">{error}</div>}
+
+        <label className="field-group">
+          <span>Full name</span>
+          <input className="field-input" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your full name" />
         </label>
-        <label className="block mb-2">Email
-          <input className="border p-2 w-full mt-1 rounded" value={email} onChange={(e) => setEmail(e.target.value)} />
+
+        <label className="field-group">
+          <span>Email</span>
+          <input className="field-input" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" />
         </label>
-        <label className="block mb-4">Password
-          <input type="password" className="border p-2 w-full mt-1 rounded" value={password} onChange={(e) => setPassword(e.target.value)} />
+
+        <label className="field-group">
+          <span>Password</span>
+          <input type="password" className="field-input" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Create a password" />
         </label>
-        <button className="w-full bg-indigo-600 text-white p-2 rounded">Sign up</button>
-        <div className="mt-4 text-center text-sm text-gray-600">Already have an account? <a href="/login" className="text-indigo-600">Sign in</a></div>
+
+        <button className="button-link w-full justify-center" disabled={submitting}>
+          {submitting ? 'Creating account...' : 'Create account'}
+        </button>
+
+        <p className="auth-meta">
+          Already have an account? <Link to="/login">Sign in</Link>
+        </p>
       </form>
     </div>
   );

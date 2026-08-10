@@ -1,34 +1,53 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getProfile } from '../services/api';
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function load() {
       try {
         const res = await getProfile();
-        setProfile(res.user || res);
+        setProfile(res || null);
       } catch (err) {
-        console.error(err);
+        setError(err.message || 'Failed to load profile');
       } finally {
         setLoading(false);
       }
     }
+
     load();
   }, []);
 
-  if (loading) return <div className="p-6">Loading profile...</div>;
-  if (!profile) return <div className="p-6">No profile</div>;
+  if (loading) return <div className="page-state">Loading profile...</div>;
+  if (error) return <div className="page-state error-text">{error}</div>;
+  if (!profile) return <div className="page-state">No profile found.</div>;
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h2 className="text-2xl mb-4">Profile</h2>
-      <div className="p-4 border rounded bg-white shadow-sm">
-        <div className="mb-2">Email: <span className="font-medium">{profile.email}</span></div>
-        <div>User ID: <span className="font-mono text-sm">{profile.id}</span></div>
-      </div>
+    <div className="page-stack">
+      <section className="page-header">
+        <div>
+          <p className="eyebrow">Account</p>
+          <h1 className="section-title">Your profile</h1>
+        </div>
+        <p className="section-copy">This page reflects the authenticated user record returned by the backend profile endpoint.</p>
+      </section>
+
+      <section className="feature-grid">
+        <article className="panel-card">
+          <p className="eyebrow">Identity</p>
+          <h2 className="section-title">{profile.full_name}</h2>
+          <p className="section-copy">{profile.email}</p>
+        </article>
+
+        <article className="panel-card">
+          <p className="eyebrow">Access</p>
+          <h2 className="section-title">Role: {profile.role}</h2>
+          <p className="section-copy">User ID: {profile.id}</p>
+        </article>
+      </section>
     </div>
   );
 }

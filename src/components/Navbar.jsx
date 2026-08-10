@@ -1,26 +1,64 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { logout } from '../services/api'
+import { Link, NavLink } from 'react-router-dom';
+import { isAuthenticated } from '../services/api';
+
+const navClassName = ({ isActive }) =>
+  `nav-link ${isActive ? 'nav-link-active' : ''}`;
 
 export default function Navbar() {
+  const authenticated = isAuthenticated();
+
   return (
-    <header className="bg-gradient-to-r from-indigo-50 to-white shadow">
-      <div className="max-w-5xl mx-auto flex items-center justify-between p-4">
-        <div className="flex items-center gap-6">
-          <Link to="/" className="text-2xl font-bold text-indigo-600">CreditWallet</Link>
-          <nav className="hidden md:flex gap-4 items-center">
-            <Link to="/wallet" className="text-sm text-gray-700 hover:text-indigo-600">Wallet</Link>
-            <Link to="/campaigns" className="text-sm text-gray-700 hover:text-indigo-600">Campaigns</Link>
+    <header className="site-header">
+      <div className="site-header-inner">
+        <div className="brand-group">
+          <Link to="/" className="brand-mark">
+            <span className="brand-mark-badge">CW</span>
+            <span>
+              <strong>CreditWallet</strong>
+              <small>Wallet and campaign workspace</small>
+            </span>
+          </Link>
+
+          <nav className="primary-nav">
+            <NavLink to="/" className={navClassName} end>
+              Home
+            </NavLink>
+            <NavLink to="/wallet" className={navClassName}>
+              Wallets
+            </NavLink>
+            <NavLink to="/campaigns" className={navClassName}>
+              Campaigns
+            </NavLink>
+            {authenticated && (
+              <NavLink to="/profile" className={navClassName}>
+                Profile
+              </NavLink>
+            )}
           </nav>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Link to="/profile" className="text-sm text-gray-700 hover:text-indigo-600">Profile</Link>
-          <Link to="/login" className="text-sm text-gray-700 hover:text-indigo-600">Login</Link>
-          <Link to="/signup" className="ml-2 inline-block bg-indigo-600 text-white px-3 py-1 rounded shadow-sm">Sign up</Link>
-          <button onClick={() => { logout(); window.location.href = '/'; }} className="ml-3 text-sm text-red-600">Logout</button>
+        <div className="auth-nav">
+          {authenticated ? (
+            <>
+              <NavLink to="/profile" className={navClassName}>
+                Account
+              </NavLink>
+              <NavLink to="/logout" className="button-link button-link-secondary">
+                Logout
+              </NavLink>
+            </>
+          ) : (
+            <>
+              <NavLink to="/login" className={navClassName}>
+                Login
+              </NavLink>
+              <NavLink to="/signup" className="button-link">
+                Create account
+              </NavLink>
+            </>
+          )}
         </div>
       </div>
     </header>
-  )
+  );
 }
