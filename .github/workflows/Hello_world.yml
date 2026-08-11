@@ -1,0 +1,17 @@
+name: Greet User
+on: push
+jobs: 
+    greet: 
+        runs-on: windows-latest
+        steps: 
+            - name: greet user
+              run: echo "Hello World!"
+            - name: Bye user
+              run: echo "Bye Bye!"
+
+
+
+
+
+
+
