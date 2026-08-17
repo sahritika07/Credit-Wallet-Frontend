@@ -11,6 +11,6 @@ jobs:
         run: |
           echo "Cloning Repo!"
           echo "${{ toJson(github) }}"
-          git clone https://github.com/${{ github.repository }}.git myfiles
+          git clone https://github.com/${{ github.repository}}.git myfiles
           cd myfiles
           ls
