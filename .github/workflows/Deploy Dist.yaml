@@ -10,6 +10,8 @@ jobs:
       - name: Get Code
         run: |
           echo "Cloning Repo!"
-          git clone https://github.com/${{ github.repository }}.git myfiles
-          cd myfiles
-          Get-ChildItem
+          uses: actions/checkout@v4
+
+        #   git clone https://github.com/${{ github.repository }}.git myfiles
+        #   cd myfiles
+        #   Get-ChildItem
