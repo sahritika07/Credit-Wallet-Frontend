@@ -9,7 +9,3 @@ jobs:
     steps:
       - name: Get Code
         uses: actions/checkout@v4
-
-        #   git clone https://github.com/${{ github.repository }}.git myfiles
-        #   cd myfiles
-        #   Get-ChildItem
