@@ -14,6 +14,18 @@ jobs:
         #   # git clone https://github.com/${{ github.repository }}.git myfiles
         #   # cd myfiles
         #   # Get-ChildItem
+      - name: setup node js
+        uses: actions/setup-node@v4
+        with: 
+          node-version: 22
+      - name: print node version
+        run: node -v
+      - name: Install Dependencies
+        run: npm install
+      - name: Run Tests
+        run: npm run test
+      - name: Completed Job
+        run: echo "Test job was success"
   
 
 
