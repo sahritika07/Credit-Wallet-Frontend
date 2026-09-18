@@ -29,8 +29,9 @@ jobs:
 
 
   build:
+      needs: test
       runs-on: windows-latest
-
+   
       steps:
         - name: Get Code
           uses: actions/checkout@v4
@@ -47,6 +48,15 @@ jobs:
           run: npm run build
         - name: Completed Job
           run: echo "Test job was success"
+
+  deploy: 
+      needs: build
+      runs-on: windows-latest
+   
+      steps:
+        - name: Deploy Dist
+          run: echo "Deployment Completed"
+
            
 
   
