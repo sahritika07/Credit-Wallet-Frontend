@@ -1,5 +1,5 @@
 name: "Setup node and install dependencies"
-descryption: "Sets up Node js, cache dependencies and installs them"
+description: "Sets up Node js, cache dependencies and installs them"
 inputs:
   node-version:
     description: "Node.js version"
@@ -24,4 +24,3 @@ runs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: npm install
       shell: pwsh
-      
