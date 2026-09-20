@@ -1,12 +1,16 @@
 name: "Setup node and install dependencies"
 descryption: "Sets up Node js, cache dependencies and installs them"
+inputs:
+  node-version:
+    description: "Node.js version"
+    default: "22"
 runs: 
   using: composite
   steps: 
     - name: setup node js
       uses: actions/setup-node@v4
       with: 
-          node-version: 22
+          node-version: $ {{ inputs.node-version }}
     - name: Cache dependencies
       uses: actions/cache@v4
       id: cache

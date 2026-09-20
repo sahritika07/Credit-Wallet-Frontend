@@ -27,6 +27,8 @@ jobs:
         #   # Get-ChildItem
       - name: Set up Node and install dependencies
         uses: ./.github/actions/setupnode
+        with: 
+          node-vsersion: 20
       - name: Run Tests
         run: npm run test
       - name: Completed Job
