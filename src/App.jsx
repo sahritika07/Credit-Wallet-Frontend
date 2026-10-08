@@ -27,6 +27,8 @@ function App() {
           <Route path="/payment/success" element={<CheckoutReturn mode="success" />} />
           <Route path="/payment/cancel" element={<CheckoutReturn mode="cancel" />} />
           <Route path="/" element={<Home />} />
+
+          
         </Routes>
         </main>
       </div>
